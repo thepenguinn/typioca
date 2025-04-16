@@ -84,7 +84,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				PersistResults(results)
 
                 if state.mainMenu.jumpToTimer {
-                    if results.wpm >= 30 {
+                    if results.wpm >= 50 {
                         /* TODO: this is lame */
                         f, _ := os.Create(os.ExpandEnv("${HOME}/.cache/typioca/wpm"))
                         defer f.Close()
