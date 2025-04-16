@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+    "fmt"
 
 	"github.com/bloznelis/typioca/cmd/words"
 	"github.com/charmbracelet/bubbles/stopwatch"
@@ -82,21 +83,34 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				PersistResults(results)
 
+                if state.mainMenu.jumpToTimer {
+                    if results.wpm >= 30 {
+                        /* TODO: this is lame */
+                        f, _ := os.Create(os.ExpandEnv("${HOME}/.cache/typioca/wpm"))
+                        defer f.Close()
+                        fmt.Fprintf(f, "%d\n", results.wpm)
+                        return m, tea.Quit
+                    }
+                }
+
 				m.state = TimerBasedTestResults{
 					settings:      state.settings,
 					wpmEachSecond: state.base.wpmEachSecond,
 					results:       results,
 					mainMenu:      state.mainMenu,
 				}
+
 			}
 
 		case tea.KeyMsg:
 			switch msg.String() {
 			case "enter", "tab":
 
-			case "ctrl+q":
-				m.state = state.mainMenu
-				return m, nil
+            case "ctrl+q":
+                if ! (state.mainMenu.jumpToTimer) {
+                    m.state = state.mainMenu
+                    return m, nil
+                }
 
 			case "ctrl+r":
 				m.state = initTimerBasedTest(state.settings, state.mainMenu)
@@ -647,7 +661,9 @@ func (results TimerBasedTestResults) handleInput(msg tea.Msg, state State) State
 		case "enter", "ctrl+r":
 			state = initTimerBasedTest(results.settings, results.mainMenu)
 		case "ctrl+q":
-			state = results.mainMenu
+            if ! (results.mainMenu.jumpToTimer) {
+                state = results.mainMenu
+            }
 		}
 	}
 

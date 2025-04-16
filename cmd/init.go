@@ -233,6 +233,7 @@ func initMainMenu() MainMenu {
 			initConfigViewSelection(),
 		},
 		cursor:                 0,
+        jumpToTimer:            false,
 		timeBasedGenerator:     words.NewGenerator(paths(timeBasedWordSelections)),
 		wordCountGenerator:     words.NewGenerator(paths(countBasedWordSelections)),
 		sentenceCountGenerator: words.NewGenerator(paths(countBasedSentenceSelections)),

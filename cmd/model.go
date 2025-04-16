@@ -142,6 +142,7 @@ type MainMenu struct {
 	config                 Config
 	selections             []MainMenuSelection
 	cursor                 int
+    jumpToTimer            bool
 	timeBasedGenerator     words.WordsGenerator
 	wordCountGenerator     words.WordsGenerator
 	sentenceCountGenerator words.WordsGenerator

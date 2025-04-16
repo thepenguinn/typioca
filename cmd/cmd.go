@@ -37,7 +37,7 @@ var (
 				return nil
 			} else {
 				termenv.SetWindowTitle("typioca")
-				defer println("bye!")
+                defer println("bye!")
 
 				termWidth, termHeight, _ := term.GetSize(int(os.Stdin.Fd()))
 				p := tea.NewProgram(
@@ -50,7 +50,7 @@ var (
 					tea.WithAltScreen(),
 				)
 
-				return p.Start()
+                return p.Start()
 			}
 		},
 	}
@@ -107,9 +107,50 @@ var (
 				return err
 			}
 
-			return nil
-		},
-	}
+            return nil
+        },
+    }
+    startTimerRun = &cobra.Command{
+        Use:  "timer-run",
+        Short: "jumps straight to timer run",
+        Long:  "timer-run starts the timer run and prints the wpm to stdout.",
+        RunE: func(cmd *cobra.Command, args []string) error {
+            termenv.SetWindowTitle("typioca")
+            termWidth, termHeight, _ := term.GetSize(int(os.Stdin.Fd()))
+
+            /* TODO: this is lame */
+
+            f, _ := os.Create(os.ExpandEnv("${HOME}/.cache/typioca/wpm"))
+            fmt.Fprintf(f, "%d\n", 0)
+            f.Close()
+
+            model := initialModel(
+                termenv.ColorProfile(),
+                termenv.ForegroundColor(),
+                termWidth,
+                termHeight,
+                )
+            menu := model.state.(MainMenu)
+            timerSettings := menu.selections[0].(TimerBasedTestSettings)
+            // at this point state will be MainMenu
+            menu.jumpToTimer = true
+            if timerSettings.enabled {
+                // changing the state to timer based test
+                model.state = initTimerBasedTest(timerSettings, menu)
+            }
+            p := tea.NewProgram(
+                model,
+                tea.WithAltScreen(),
+                )
+
+            ret := p.Start()
+
+            data, _ := os.ReadFile(os.ExpandEnv("${HOME}/.cache/typioca/wpm"))
+            fmt.Printf(string(data))
+
+            return ret
+        },
+    }
 )
 
 func init() {
@@ -118,4 +159,5 @@ func init() {
 	serveCmd.Flags().IntVarP(&serverPort, "port", "p", 2229, "port to serve on")
 	RootCmd.Flags().BoolVarP(&showVersion, "version", "v", false, "show typioca version")
 	RootCmd.AddCommand(serveCmd)
+	RootCmd.AddCommand(startTimerRun)
 }
