@@ -146,6 +146,7 @@ var (
             ret := p.Start()
 
             data, _ := os.ReadFile(os.ExpandEnv("${HOME}/.cache/typioca/wpm"))
+            fmt.Printf("Wpm: ")
             fmt.Printf(string(data))
 
             return ret
